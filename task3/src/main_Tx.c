@@ -38,11 +38,16 @@
 #define IN2 	2
 #define EN 		3
 
+#define TX		9
+#define RX		10
 
 void main1()
 {
 	/*initialize clocks*/
 	MRCC_voidInitSysClock();
+
+	/*Enable USART clock */
+	MRCC_voidEnableClock(RCC_APB2,USART1_EN);
 
 	/*Enable GPIOA clock */
 	MRCC_voidEnableClock(RCC_AHB1,GPIOA_EN);
@@ -67,8 +72,15 @@ void main1()
 	MGPIO_VoidSetPinValue(GPIO_A,IN2,LOW);
 
 	/* Initialize USART */
-	MUSART1_voidInit();
-	MUSART1_voidEnable();
+
+	MGPIO_VoidSetPinMode(GPIO_A, TX, AF);
+	MGPIO_VoidSetPinMode(GPIO_A, RX, AF);
+
+	MGPIO_VoidSetPinAlternativeFunction(GPIO_A, TX, AF7);
+	MGPIO_VoidSetPinAlternativeFunction(GPIO_A, RX, AF7);
+
+
+	MUSART_voidInit();
 
 	u8 prev_state = HSWITCH_u8GetSwitchState(GPIO_A, SWITCH);
 	u8 current_state;
@@ -84,13 +96,13 @@ void main1()
 					if(current_state == 1)
 					{
 						MGPIO_VoidSetPinValue(GPIO_A,EN,LOW);
-						MUSART1_voidSendData(current_state);
+						MUSART_voidSendData(current_state);
 					}
 
 					else
 					{
 						MGPIO_VoidSetPinValue(GPIO_A,EN,HIGH);
-						MUSART1_voidSendData(current_state);
+						MUSART_voidSendData(current_state);
 					}
 					prev_state = current_state;
 				}

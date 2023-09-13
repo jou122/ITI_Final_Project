@@ -41,7 +41,8 @@
 #define EXTI5_9 23
 #define USART_INT 37
 
-
+#define TX		9
+#define RX		10
 
 u8 motor_state = 0;
 u8 door1_state = 0;
@@ -70,6 +71,7 @@ void Door1Interrupt(){
 //		MGPIO_VoidSetPinValue(GPIO_A, BUZZ, LOW);
 //	}
 
+	MGPIO_VoidSetPinValue(GPIO_A, BUZZ, HIGH);
 
 }
 
@@ -93,6 +95,7 @@ void Door2Interrupt(){
 //		MGPIO_VoidSetPinValue(GPIO_A, BUZZ, LOW);
 //	}
 
+	MGPIO_VoidSetPinValue(GPIO_A, BUZZ, LOW);
 
 
 
@@ -142,7 +145,7 @@ void Door4Interrupt(){
 }
 
 void motorInterrupt(){
-//	motor_state = MUSART1_u8ReceiveData();
+//	motor_state = MUSART_u8Receive();
 //
 //	if(motor_state & (!any_door_state)){
 //		MGPIO_VoidSetPinValue(GPIO_A, BUZZ, HIGH);
@@ -179,17 +182,30 @@ void main()
 	/*initialize clocks*/
 	MRCC_voidInitSysClock();
 
-	/*Enable GPIOA clock */
+	/*Enable GPIOB clock */
 	MRCC_voidEnableClock(RCC_AHB1,GPIOB_EN);
+
+	/*Enable GPIOA clock */
+	MRCC_voidEnableClock(RCC_AHB1,GPIOA_EN);
+
+
+	/*Enable USART clock */
+	MRCC_voidEnableClock(RCC_APB2,USART1_EN);
 
 
 	/*Enable SYSCNF clock*/
-	MRCC_voidEnableClock(RCC_AHB1,SYSCFG_EN);
+	MRCC_voidEnableClock(RCC_APB2,SYSCFG_EN);
 
-	/*Enable PortA */
 	/* Initialize USART */
-	MUSART1_voidInit();
-	MUSART1_voidEnable();
+
+	MGPIO_VoidSetPinMode(GPIO_A, TX, AF);
+	MGPIO_VoidSetPinMode(GPIO_A, RX, AF);
+
+	MGPIO_VoidSetPinAlternativeFunction(GPIO_A, TX, AF7);
+	MGPIO_VoidSetPinAlternativeFunction(GPIO_A, RX, AF7);
+
+
+	MUSART_voidInit();
 
 
 
@@ -233,17 +249,9 @@ void main()
 	MEXTI_voidSetCallBack(Door4Ptr,DOOR4);
 
 
-
-
-
-
-
-
-
-
 	/*USART Interrupt*/
 	MNVIC_voidEnableInterrupt(USART_INT);
-	MUSART1_VoidSetCallBack(motorPtr);
+	MUSART_voidSetCallBack(motorPtr);
 
 
 //	MEXTI_voidSoftwareTrigger(5);

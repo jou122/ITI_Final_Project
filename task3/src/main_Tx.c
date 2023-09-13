@@ -39,7 +39,7 @@
 #define EN 		3
 
 
-void main1()
+void main()
 {
 	/*initialize clocks*/
 	MRCC_voidInitSysClock();
@@ -63,8 +63,8 @@ void main1()
 
 
 	/*set motor direction */
-	MGPIO_vSetPinVal(GPIO_A,IN1,HIGH);
-	MGPIO_vSetPinVal(GPIO_A,IN2,LOW);
+	MGPIO_VoidSetPinValue(GPIO_A,IN1,HIGH);
+	MGPIO_VoidSetPinValue(GPIO_A,IN2,LOW);
 
 	/* Initialize USART */
 	MUSART1_voidInit();
@@ -83,15 +83,14 @@ void main1()
 				{
 					if(current_state == 1)
 					{
-						// Motor ON
-			    		MGPIO_vSetPinVal(GPIO_A,EN,LOW);
-						MUSART_voidSendData(current_state);
+						MGPIO_VoidSetPinValue(GPIO_A,EN,LOW);
+						MUSART1_voidSendData(current_state);
 					}
 
 					else
 					{
-			    		MGPIO_vSetPinVal(GPIO_A,EN,HIGH);
-						MUSART_voidSendData(current_state);
+						MGPIO_VoidSetPinValue(GPIO_A,EN,HIGH);
+						MUSART1_voidSendData(current_state);
 					}
 					prev_state = current_state;
 				}

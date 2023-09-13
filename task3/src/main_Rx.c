@@ -96,7 +96,7 @@ void (*motorPtr)(void)=&motorInterrupt;
 
 
 
-void main()
+void main1()
 {
 
 

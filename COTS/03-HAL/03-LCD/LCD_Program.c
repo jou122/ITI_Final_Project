@@ -49,11 +49,12 @@ void HLCD_voidWriteCommand(u8 Copy_u8Command)
 	MGPIO_VoidSetPinValue(RS_Write_EN_port , Write , LOW);
 	/*send command*/
 	MGPIO_VoidSetLowerPinValue(LCD_port , Copy_u8Command);
+	MSTK_voidSetBusyWait(2000);
 	/*Enable pulse*/
 	MGPIO_VoidSetPinValue(RS_Write_EN_port , EN , HIGH);
 	//_delay_ms(2);
 	MSTK_voidSetBusyWait(2000);
-	MGPIO_VoidSetPinValue(RS_Write_EN_port , EN , HIGH);
+	MGPIO_VoidSetPinValue(RS_Write_EN_port , EN , LOW);
 }
 
 //____________________________________________write data______________________________________

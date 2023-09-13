@@ -340,15 +340,15 @@ void MGPIO_VoidSetLowerPinValue(u8 Copy_u8Port , u8 Copy_u8Value)
 	{
 	/* output data high or low for lower pins(0:7) */
 	case GPIO_A:
-		GPIOA->ODR |= Copy_u8Value;
+		GPIOA->ODR = Copy_u8Value;
 		break;
 
 	case GPIO_B:
-		GPIOB->ODR |= Copy_u8Value;
+		GPIOB->ODR = Copy_u8Value;
 		break;
 
 	case GPIO_C:
-		GPIOC->ODR |= Copy_u8Value;
+		GPIOC->ODR = Copy_u8Value;
 		break;
 
 	}

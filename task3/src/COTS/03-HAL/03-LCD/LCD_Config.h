@@ -10,9 +10,9 @@
 #define RS_Write_EN_port     GPIO_B
 #define LCD_port             GPIO_A
 
-#define RS       PIN0
-#define Write    PIN1     //R\W
-#define EN       PIN2
+#define RS       PIN1
+#define Write    PIN2     //R\W
+#define EN       PIN3
 
 
 #endif

@@ -24,7 +24,7 @@
 #include "COTS/02-MCAL/04-EXTI/EXTI_interface.h"
 #include "COTS/02-MCAL/05-SYSCFG/SYSCFG_interface.h"
 #include "COTS/02-MCAL/06-STK/STK_interface.h"
-#include "COTS/02-MCAL/07-USART1/USART_interface.h"
+#include "COTS/02-MCAL/07-USART1/MUSART_Interface.h"
 
 
 #include "COTS/03-HAL/01-LED/LED_interface.h"
@@ -49,35 +49,110 @@ u8 door2_state = 0;
 u8 door3_state = 0;
 u8 door4_state = 0;
 
-
+u8 any_door_state =0;
 
 
 void Door1Interrupt(){
-	door1_state = HSWITCH_u8GetSwitchState(GPIO_B, DOOR1);
+//	door1_state = HSWITCH_u8GetSwitchState(GPIO_B, DOOR1);
+//
+//
+//	if (door1_state || door2_state || door3_state || door4_state){
+//		any_door_state=1;
+//	}
+//	else{any_door_state=0;}
+//
+//
+//	if(motor_state & (!any_door_state)){
+//		MGPIO_VoidSetPinValue(GPIO_A, BUZZ, HIGH);
+//	}
+//
+//	else{
+//		MGPIO_VoidSetPinValue(GPIO_A, BUZZ, LOW);
+//	}
+
 
 }
 
 
 void Door2Interrupt(){
-	door2_state = HSWITCH_u8GetSwitchState(GPIO_B, DOOR1);
+//	door2_state = HSWITCH_u8GetSwitchState(GPIO_B, DOOR1);
+//
+//
+//	if (door1_state || door2_state || door3_state || door4_state){
+//			any_door_state=1;
+//		}
+//		else{any_door_state=0;}
+//
+//
+//
+//	if(motor_state & (!any_door_state)){
+//		MGPIO_VoidSetPinValue(GPIO_A, BUZZ, HIGH);
+//	}
+//
+//	else{
+//		MGPIO_VoidSetPinValue(GPIO_A, BUZZ, LOW);
+//	}
+
+
+
 
 }
 
 
 void Door3Interrupt(){
-	door3_state = HSWITCH_u8GetSwitchState(GPIO_B, DOOR1);
+
+//	if (door1_state || door2_state || door3_state || door4_state){
+//			any_door_state=1;
+//		}
+//		else{any_door_state=0;}
+//
+//
+//	door3_state = HSWITCH_u8GetSwitchState(GPIO_B, DOOR1);
+//
+//	if(motor_state & (!any_door_state)){
+//		MGPIO_VoidSetPinValue(GPIO_A, BUZZ, HIGH);
+//	}
+//
+//	else{
+//		MGPIO_VoidSetPinValue(GPIO_A, BUZZ, LOW);
+//	}
 
 }
 
 
 void Door4Interrupt(){
-	door4_state = HSWITCH_u8GetSwitchState(GPIO_B, DOOR1);
+
+
+//	if (door1_state || door2_state || door3_state || door4_state){
+//			any_door_state=1;
+//		}
+//		else{any_door_state=0;}
+//
+//
+//	door4_state = HSWITCH_u8GetSwitchState(GPIO_B, DOOR1);
+//
+//	if(motor_state & (!any_door_state)){
+//		MGPIO_VoidSetPinValue(GPIO_A, BUZZ, HIGH);
+//	}
+//
+//	else{
+//		MGPIO_VoidSetPinValue(GPIO_A, BUZZ, LOW);
+//	}
 
 }
 
 void motorInterrupt(){
-	motor_state = MUSART1_u8ReceiveData();
+//	motor_state = MUSART1_u8ReceiveData();
+//
+//	if(motor_state & (!any_door_state)){
+//		MGPIO_VoidSetPinValue(GPIO_A, BUZZ, HIGH);
+//	}
+//
+//	else{
+//		MGPIO_VoidSetPinValue(GPIO_A, BUZZ, LOW);
+//	}
 
+	MGPIO_VoidSetPinValue(GPIO_A, BUZZ, HIGH);
 }
 
 
@@ -96,7 +171,7 @@ void (*motorPtr)(void)=&motorInterrupt;
 
 
 
-void main1()
+void main()
 {
 
 
@@ -124,8 +199,15 @@ void main1()
 	MGPIO_VoidSetPinMode(GPIO_A,BUZZ,OUTPUT);
 	MGPIO_VoidSetPinOutputType(GPIO_A,BUZZ,OUTPUT_PP);
 
+	/*NVIC Enable*/
+	MNVIC_voidEnableInterrupt(EXTI5_9);
 
 
+	/*Set Interrupt to port B*/
+	MSYSCFG_voidSetEXTIConfiguration(DOOR1,SYSCFG_B);
+	MSYSCFG_voidSetEXTIConfiguration(DOOR2,SYSCFG_B);
+	MSYSCFG_voidSetEXTIConfiguration(DOOR3,SYSCFG_B);
+	MSYSCFG_voidSetEXTIConfiguration(DOOR4,SYSCFG_B);
 
 	/*Enable Interrupts*/
 	MEXTI_voidEnableEXTI(DOOR1);
@@ -139,17 +221,6 @@ void main1()
 	MEXTI_voidSetSignalLatch(DOOR3 , ON_CHANGE);
 	MEXTI_voidSetSignalLatch(DOOR4 , ON_CHANGE);
 
-
-	/*NVIC Enable*/
-	MNVIC_voidEnableInterrupt(EXTI5_9);
-
-	/*Set Interrupt to port B*/
-	MSYSCFG_voidSetEXTIConfiguration(DOOR1,SYSCFG_B);
-	MSYSCFG_voidSetEXTIConfiguration(DOOR2,SYSCFG_B);
-	MSYSCFG_voidSetEXTIConfiguration(DOOR3,SYSCFG_B);
-	MSYSCFG_voidSetEXTIConfiguration(DOOR4,SYSCFG_B);
-
-
 	/*Set EXTI callback*/
 	MEXTI_voidSetCallBack(Door1Ptr,DOOR1);
 	MEXTI_voidSetCallBack(Door2Ptr,DOOR2);
@@ -157,13 +228,24 @@ void main1()
 	MEXTI_voidSetCallBack(Door4Ptr,DOOR4);
 
 
+
+
+
+
+
+
+
+
 	/*USART Interrupt*/
 	MNVIC_voidEnableInterrupt(USART_INT);
-	MUSART1_VoidSetCallBack(motorInterrupt);
+	MUSART1_VoidSetCallBack(motorPtr);
 
 
+//	MEXTI_voidSoftwareTrigger(5);
 
-	while(1);
+	while(1)
+	{	}
+
 }
 
 

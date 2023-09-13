@@ -15,8 +15,8 @@
 void	MSYSCFG_voidSetEXTIConfiguration(u8 Copy_u8EXTILine , u8 Copy_u8PortMap)
 {
 	/*reset first --> (avoiding overwrite)*/
-	SYSCFG->EXTICR[Copy_u8EXTILine/4] &= ~((0b1111) << (Copy_u8EXTILine * 4));
+	SYSCFG->EXTICR[Copy_u8EXTILine/4] &= ~((0b1111) << (4*(Copy_u8EXTILine % 4)));
 	
 	/*set*/
-	SYSCFG->EXTICR[Copy_u8EXTILine/4]  |= ((Copy_u8PortMap) << (Copy_u8EXTILine * 4));
+	SYSCFG->EXTICR[Copy_u8EXTILine/4]  |= ((Copy_u8PortMap) << (4*(Copy_u8EXTILine % 4)));
 }

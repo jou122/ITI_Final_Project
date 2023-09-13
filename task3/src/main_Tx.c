@@ -26,7 +26,7 @@
 #include "COTS/02-MCAL/04-EXTI/EXTI_interface.h"
 #include "COTS/02-MCAL/05-SYSCFG/SYSCFG_interface.h"
 #include "COTS/02-MCAL/06-STK/STK_interface.h"
-#include "COTS/02-MCAL/07-USART1/USART_interface.h"
+#include "COTS/02-MCAL/07-USART1/MUSART_Interface.h"
 
 
 #include "COTS/03-HAL/01-LED/LED_interface.h"
@@ -39,7 +39,7 @@
 #define EN 		3
 
 
-void main()
+void main1()
 {
 	/*initialize clocks*/
 	MRCC_voidInitSysClock();

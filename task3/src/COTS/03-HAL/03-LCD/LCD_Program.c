@@ -39,6 +39,7 @@ void HLCD_voidInitialize(void)
 	//_delay_ms(2);
 	MSTK_voidSetBusyWait(2000);
 	HLCD_voidWriteCommand(CLR_Display);     //send command clear display
+	MSTK_voidSetBusyWait(2000);
 }
 //___________________________________________write command____________________________________-
 void HLCD_voidWriteCommand(u8 Copy_u8Command)
@@ -49,11 +50,10 @@ void HLCD_voidWriteCommand(u8 Copy_u8Command)
 	MGPIO_VoidSetPinValue(RS_Write_EN_port , Write , LOW);
 	/*send command*/
 	MGPIO_VoidSetLowerPinValue(LCD_port , Copy_u8Command);
-	MSTK_voidSetBusyWait(2000);
 	/*Enable pulse*/
 	MGPIO_VoidSetPinValue(RS_Write_EN_port , EN , HIGH);
 	//_delay_ms(2);
-	MSTK_voidSetBusyWait(2000);
+	MSTK_voidSetBusyWait(20000);
 	MGPIO_VoidSetPinValue(RS_Write_EN_port , EN , LOW);
 }
 

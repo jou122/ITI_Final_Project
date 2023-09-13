@@ -182,7 +182,12 @@ void main()
 	/*Enable GPIOA clock */
 	MRCC_voidEnableClock(RCC_AHB1,GPIOB_EN);
 
-	/* Initialize USART */ 	/*Enable SYSCNF clock*/ 	/*Enable PortA */
+
+	/*Enable SYSCNF clock*/
+	MRCC_voidEnableClock(RCC_AHB1,SYSCFG_EN);
+
+	/*Enable PortA */
+	/* Initialize USART */
 	MUSART1_voidInit();
 	MUSART1_voidEnable();
 

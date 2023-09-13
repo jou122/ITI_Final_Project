@@ -20,6 +20,13 @@
 #include "COTS/03-HAL/03-LCD/LCD_interface.h"
 
 
+/* Input: Four doors states: 0 -> open
+ * 							 1 -> closed
+ *
+ * Output: Display states on LCD
+ */
+void update_LCD(u8 door1_state, u8 door2_state, u8 door3_state, u8 door4_state);
+
 void main()
 {
 	/*initialize clocks*/
@@ -31,12 +38,44 @@ void main()
 
 	/* Initialization */
 	MSTK_voidInit();
-	MSTK_voidSetBusyWait(1000000);
 	HLCD_voidInitialize();
-	MSTK_voidSetBusyWait(1000000);
-
-	HLCD_voidNumbers(1);
 
 
-	while(1);
+	while(1){
+
+		update_LCD(1, 1, 1, 0);
+	}
+}
+
+
+void update_LCD(u8 door1_state, u8 door2_state, u8 door3_state, u8 door4_state)
+{
+	//HLCD_voidClear();
+	HLCD_voidGoToXY(0, 1);
+	HLCD_voidString("1:");
+	if(door1_state)
+		HLCD_voidString("CLOSE");
+	else
+		HLCD_voidString("OPEN");
+
+	HLCD_voidGoToXY(9, 1);
+	HLCD_voidString("2:");
+		if(door2_state)
+			HLCD_voidString("CLOSE");
+		else
+			HLCD_voidString("OPEN");
+
+	HLCD_voidGoToXY(0, 2);
+	HLCD_voidString("3:");
+		if(door3_state)
+			HLCD_voidString("CLOSE");
+		else
+			HLCD_voidString("OPEN");
+
+	HLCD_voidGoToXY(9, 2);
+	HLCD_voidString("4:");
+		if(door4_state)
+			HLCD_voidString("CLOSE");
+		else
+			HLCD_voidString("OPEN");
 }

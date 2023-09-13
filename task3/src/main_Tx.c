@@ -33,6 +33,12 @@
 #include "COTS/03-HAL/02-SWITCH/SWITCH_interface.h"
 
 
+#define SWITCH 	0
+#define IN1 	1
+#define IN2 	2
+#define EN 		3
+
+
 void main1()
 {
 	/*initialize clocks*/
@@ -43,27 +49,51 @@ void main1()
 	MRCC_voidEnableClock(RCC_AHB1,GPIOB_EN);
 
 	/* switch */
-	HSWITCH_VoidInit(GPIO_A,PIN5,PULL_DOWN);
+	HSWITCH_VoidInit(GPIO_A,SWITCH,PULL_UP);
 
 	/* DC Motor */
-	MGPIO_VoidSetPinMode(GPIO_B,PIN6,OUTPUT);
-	MGPIO_VoidSetPinOutputType(GPIO_B,PIN6,OUTPUT_PP);
+	MGPIO_VoidSetPinMode(GPIO_A,EN,OUTPUT);
+	MGPIO_VoidSetPinOutputType(GPIO_A,EN,OUTPUT_PP);
+
+	MGPIO_VoidSetPinMode(GPIO_A,IN1,OUTPUT);
+	MGPIO_VoidSetPinOutputType(GPIO_A,IN1,OUTPUT_PP);
+
+	MGPIO_VoidSetPinMode(GPIO_A,IN2,OUTPUT);
+	MGPIO_VoidSetPinOutputType(GPIO_A,IN2,OUTPUT_PP);
+
+
+	/*set motor direction */
+	MGPIO_vSetPinVal(GPIO_A,IN1,HIGH);
+	MGPIO_vSetPinVal(GPIO_A,IN2,LOW);
 
 	/* Initialize USART */
 	MUSART1_voidInit();
 	MUSART1_voidEnable();
 
-	volatile u8 ButtonState = 0;
+	u8 prev_state = HSWITCH_u8GetSwitchState(GPIO_A, SWITCH);
+	u8 current_state;
 
 	while(1)
 	{
 		/* Get the state of the button */
-		ButtonState = MGPIO_u8GetPinValue(GPIO_A,PIN5);
+		current_state = HSWITCH_u8GetSwitchState(GPIO_A,SWITCH);
 
-		/* Motor is ON or OFF depending on button state */
-		MGPIO_VoidSetPinValue(GPIO_B,PIN6,ButtonState);
 
-		/* Send Motor state to another micro-controller */
-		MUSART1_voidSendNumbers(ButtonState);
-	}
+		if(current_state != prev_state)
+				{
+					if(current_state == 1)
+					{
+						// Motor ON
+			    		MGPIO_vSetPinVal(GPIO_A,EN,LOW);
+						MUSART_voidSendData(current_state);
+					}
+
+					else
+					{
+			    		MGPIO_vSetPinVal(GPIO_A,EN,HIGH);
+						MUSART_voidSendData(current_state);
+					}
+					prev_state = current_state;
+				}
+			}
 }

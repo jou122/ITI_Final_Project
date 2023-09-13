@@ -15,7 +15,7 @@ void MEXTI_voidSoftwareTrigger(u8 Copy_u8EXTILine);
 void MEXTI_voidSetSignalLatch(u8 Copy_u8EXTILine , u8 Copy_u8EXTIMode);
 
 /*pointer to function*/
-void EXTI_voidSetCallBack(void (*ptr) (void) , u8 Copy_u8EXTILine);
+void MEXTI_voidSetCallBack(void (*ptr) (void) , u8 Copy_u8EXTILine);
 
 
 #define			LINE0				0

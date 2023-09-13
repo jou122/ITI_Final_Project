@@ -31,57 +31,144 @@
 #include "COTS/03-HAL/02-SWITCH/SWITCH_interface.h"
 
 
+#define BUZZ 	15
+
+#define DOOR1 	5
+#define DOOR2 	6
+#define DOOR3 	7
+#define DOOR4 	8
+
+#define EXTI5_9 23
+#define USART_INT 37
+
+
+
+u8 motor_state = 0;
+u8 door1_state = 0;
+u8 door2_state = 0;
+u8 door3_state = 0;
+u8 door4_state = 0;
+
+
+
+
+void Door1Interrupt(){
+	door1_state = HSWITCH_u8GetSwitchState(GPIO_B, DOOR1);
+
+}
+
+
+void Door2Interrupt(){
+	door2_state = HSWITCH_u8GetSwitchState(GPIO_B, DOOR1);
+
+}
+
+
+void Door3Interrupt(){
+	door3_state = HSWITCH_u8GetSwitchState(GPIO_B, DOOR1);
+
+}
+
+
+void Door4Interrupt(){
+	door4_state = HSWITCH_u8GetSwitchState(GPIO_B, DOOR1);
+
+}
+
+void motorInterrupt(){
+	motor_state = MUSART1_u8ReceiveData();
+
+}
+
+
+
+
+
+
+
+void (*Door1Ptr)(void)=&Door1Interrupt;
+void (*Door2Ptr)(void)=&Door2Interrupt;
+void (*Door3Ptr)(void)=&Door3Interrupt;
+void (*Door4Ptr)(void)=&Door4Interrupt;
+
+void (*motorPtr)(void)=&motorInterrupt;
+
+
+
+
 void main()
 {
+
+
+
 	/*initialize clocks*/
 	MRCC_voidInitSysClock();
 
 	/*Enable GPIOA clock */
-	MRCC_voidEnableClock(RCC_AHB1,GPIOA_EN);
 	MRCC_voidEnableClock(RCC_AHB1,GPIOB_EN);
 
-	/* switch */
-	HSWITCH_VoidInit(GPIO_B,PIN2,PULL_DOWN);
-
-	/* Buzzer */
-	MGPIO_VoidSetPinMode(GPIO_B,PIN7,OUTPUT);
-	MGPIO_VoidSetPinOutputType(GPIO_B,PIN7,OUTPUT_PP);
-
-	/* Initialize USART */
+	/* Initialize USART */ 	/*Enable SYSCNF clock*/ 	/*Enable PortA */
 	MUSART1_voidInit();
 	MUSART1_voidEnable();
 
-	volatile u8 ButtonState = 0;
-	u8 ReceivedState = 0;
 
-	while(1)
-	{
-		/* Get the state of the button */
-		ButtonState = MGPIO_u8GetPinValue(GPIO_B,PIN2);
 
-		/* if the button state and received data is 1 then a buzzer is ON */
-		if (ButtonState == 1)
-		{
-			/* Receive Motor state from the 1st micro-controller */
-			ReceivedState = MUSART1_u8ReceiveData() - ZeroASCIICode;
 
-			if (ReceivedState == 1)
-			{
-				/* Buzzer turned ON (both buttons are ON) */
-				MGPIO_VoidSetPinValue(GPIO_B,PIN7,HIGH);
-			}
-			/* handling case that ReceivedState = 0 */
-			else
-			{
-				/* Buzzer turned OFF */
-				MGPIO_VoidSetPinValue(GPIO_B,PIN7,LOW);
-			}
-		}
-		/* handling case that buttonState = 0 */
-		else
-		{
-			/* Buzzer turned OFF */
-			MGPIO_VoidSetPinValue(GPIO_B,PIN7,LOW);
-		}
-	}
+	/* switch */
+	HSWITCH_VoidInit(GPIO_B,DOOR1,PULL_UP);
+	HSWITCH_VoidInit(GPIO_B,DOOR2,PULL_UP);
+	HSWITCH_VoidInit(GPIO_B,DOOR3,PULL_UP);
+	HSWITCH_VoidInit(GPIO_B,DOOR4,PULL_UP);
+
+	/* Buzzer */
+	MGPIO_VoidSetPinMode(GPIO_A,BUZZ,OUTPUT);
+	MGPIO_VoidSetPinOutputType(GPIO_A,BUZZ,OUTPUT_PP);
+
+
+
+
+	/*Enable Interrupts*/
+	MEXTI_voidEnableEXTI(DOOR1);
+	MEXTI_voidEnableEXTI(DOOR2);
+	MEXTI_voidEnableEXTI(DOOR3);
+	MEXTI_voidEnableEXTI(DOOR4);
+
+	/*Select signal latch*/
+	MEXTI_voidSetSignalLatch(DOOR1 , ON_CHANGE);
+	MEXTI_voidSetSignalLatch(DOOR2 , ON_CHANGE);
+	MEXTI_voidSetSignalLatch(DOOR3 , ON_CHANGE);
+	MEXTI_voidSetSignalLatch(DOOR4 , ON_CHANGE);
+
+
+	/*NVIC Enable*/
+	MNVIC_voidEnableInterrupt(EXTI5_9);
+
+	/*Set Interrupt to port B*/
+	MSYSCFG_voidSetEXTIConfiguration(DOOR1,SYSCFG_B);
+	MSYSCFG_voidSetEXTIConfiguration(DOOR2,SYSCFG_B);
+	MSYSCFG_voidSetEXTIConfiguration(DOOR3,SYSCFG_B);
+	MSYSCFG_voidSetEXTIConfiguration(DOOR4,SYSCFG_B);
+
+
+	/*Set EXTI callback*/
+	MEXTI_voidSetCallBack(Door1Ptr,DOOR1);
+	MEXTI_voidSetCallBack(Door2Ptr,DOOR2);
+	MEXTI_voidSetCallBack(Door3Ptr,DOOR3);
+	MEXTI_voidSetCallBack(Door4Ptr,DOOR4);
+
+
+	/*USART Interrupt*/
+	MNVIC_voidEnableInterrupt(USART_INT);
+	MUSART1_VoidSetCallBack(motorInterrupt);
+
+
+
+	while(1);
 }
+
+
+
+
+
+
+

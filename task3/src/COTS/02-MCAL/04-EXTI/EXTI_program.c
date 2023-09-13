@@ -72,7 +72,7 @@ void MEXTI_voidSetSignalLatch(u8 Copy_u8EXTILine , u8 Copy_u8EXTIMode)
 }
 
 
-void EXTI_voidSetCallBack(void (*ptr) (void) , u8 Copy_u8EXTILine)
+void MEXTI_voidSetCallBack(void (*ptr) (void) , u8 Copy_u8EXTILine)
 {
 	EXTI_GlobalPtr[Copy_u8EXTILine] = ptr;
 }

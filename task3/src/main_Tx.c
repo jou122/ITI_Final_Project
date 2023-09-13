@@ -32,16 +32,47 @@
 #include "COTS/03-HAL/01-LED/LED_interface.h"
 #include "COTS/03-HAL/02-SWITCH/SWITCH_interface.h"
 
-
+#define CLKWISE		4
+#define ANTICLKWISE 5
 #define SWITCH 	0
 #define IN1 	1
 #define IN2 	2
 #define EN 		3
 
+#define IN4 	13
+#define IN3 	12
+#define EN2 	11
+
+
 #define TX		9
 #define RX		10
 
-void main1()
+
+
+
+void MoveClk(){
+	/*set motor direction */
+	MGPIO_VoidSetPinValue(GPIO_A,IN3,HIGH);
+	MGPIO_VoidSetPinValue(GPIO_A,IN4,LOW);
+	MGPIO_VoidSetPinValue(GPIO_A,EN2,HIGH);
+
+}
+void MoveAntiClk(){
+	/*set motor direction */
+	MGPIO_VoidSetPinValue(GPIO_A,IN3,LOW);
+	MGPIO_VoidSetPinValue(GPIO_A,IN4,HIGH);
+	MGPIO_VoidSetPinValue(GPIO_A,EN2,HIGH);
+
+}
+
+void StopMotor(){
+	MGPIO_VoidSetPinValue(GPIO_A,EN2,LOW);
+}
+
+
+
+
+void main()
 {
 	/*initialize clocks*/
 	MRCC_voidInitSysClock();
@@ -56,7 +87,12 @@ void main1()
 	/* switch */
 	HSWITCH_VoidInit(GPIO_A,SWITCH,PULL_UP);
 
-	/* DC Motor */
+	/* Clkwise button */
+	HSWITCH_VoidInit(GPIO_A,SWITCH,PULL_UP);
+	/* AntiClkwise button */
+	HSWITCH_VoidInit(GPIO_A,SWITCH,PULL_UP);
+
+	/* DC Motor for engine*/
 	MGPIO_VoidSetPinMode(GPIO_A,EN,OUTPUT);
 	MGPIO_VoidSetPinOutputType(GPIO_A,EN,OUTPUT_PP);
 
@@ -66,10 +102,21 @@ void main1()
 	MGPIO_VoidSetPinMode(GPIO_A,IN2,OUTPUT);
 	MGPIO_VoidSetPinOutputType(GPIO_A,IN2,OUTPUT_PP);
 
-
 	/*set motor direction */
 	MGPIO_VoidSetPinValue(GPIO_A,IN1,HIGH);
 	MGPIO_VoidSetPinValue(GPIO_A,IN2,LOW);
+
+
+	/* DC Motor for window*/
+	MGPIO_VoidSetPinMode(GPIO_A,EN2,OUTPUT);
+	MGPIO_VoidSetPinOutputType(GPIO_A,EN2,OUTPUT_PP);
+
+	MGPIO_VoidSetPinMode(GPIO_A,IN3,OUTPUT);
+	MGPIO_VoidSetPinOutputType(GPIO_A,IN3,OUTPUT_PP);
+
+	MGPIO_VoidSetPinMode(GPIO_A,IN4,OUTPUT);
+	MGPIO_VoidSetPinOutputType(GPIO_A,IN4,OUTPUT_PP);
+
 
 	/* Initialize USART */
 
@@ -84,6 +131,12 @@ void main1()
 
 	u8 prev_state = HSWITCH_u8GetSwitchState(GPIO_A, SWITCH);
 	u8 current_state;
+
+
+	if (prev_state==1)
+	{prev_state=0;}
+	else{prev_state=1;}
+
 
 	while(1)
 	{
@@ -106,5 +159,17 @@ void main1()
 					}
 					prev_state = current_state;
 				}
+
+		if(HSWITCH_u8GetSwitchState(GPIO_A,CLKWISE)==0){
+			MoveClk();
+		}
+		else if (HSWITCH_u8GetSwitchState(GPIO_A,ANTICLKWISE)==0){
+			MoveAntiClk();
+		}
+		else{
+			StopMotor();
+		}
+
+
 			}
 }

@@ -156,7 +156,7 @@ void motorInterrupt(){
 
 
 
-void main()
+void main1()
 {
 	/*initialize clocks*/
 	MRCC_voidInitSysClock();

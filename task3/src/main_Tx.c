@@ -102,11 +102,15 @@ void main1()
 	u8 prev_state = HSWITCH_u8GetSwitchState(GPIO_A, SWITCH);
 	u8 current_state;
 
+	u8 wrong_password = 0;
+
 
 	if (prev_state==1)
 	{prev_state=0;}
 	else{prev_state=1;}
 
+	/* Wait for correct password to start */
+	while(wrong_password);
 
 	while(1)
 	{

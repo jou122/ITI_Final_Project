@@ -30,6 +30,7 @@
 #include "COTS/03-HAL/01-LED/LED_interface.h"
 #include "COTS/03-HAL/02-SWITCH/SWITCH_interface.h"
 #include "COTS/03-HAL/03-LCD/LCD_interface.h"
+#include "COTS/03-HAL/05-Buzzer/BUZ_interface.h"
 
 
 #define BUZZ 	15
@@ -57,32 +58,32 @@ u8 any_door_state = 0;
 void LCD_update()
 {
 	HLCD_voidGoToXY(0, 1);
-	HLCD_voidString("1:");
+	HLCD_voidString((u8*)"1:");
 	if(!door1_state)
-		HLCD_voidString("CLOSE");
+		HLCD_voidString((u8*)"CLOSE");
 	else
-		HLCD_voidString("OPEN ");
+		HLCD_voidString((u8*)"OPEN ");
 
 	HLCD_voidGoToXY(9, 1);
-	HLCD_voidString("2:");
+	HLCD_voidString((u8*)"2:");
 		if(!door2_state)
-			HLCD_voidString("CLOSE");
+			HLCD_voidString((u8*)"CLOSE");
 		else
-			HLCD_voidString("OPEN ");
+			HLCD_voidString((u8*)"OPEN ");
 
 	HLCD_voidGoToXY(0, 2);
-	HLCD_voidString("3:");
+	HLCD_voidString((u8*)"3:");
 		if(!door3_state)
-			HLCD_voidString("CLOSE");
+			HLCD_voidString((u8*)"CLOSE");
 		else
-			HLCD_voidString("OPEN ");
+			HLCD_voidString((u8*)"OPEN ");
 
 	HLCD_voidGoToXY(9, 2);
-	HLCD_voidString("4:");
+	HLCD_voidString((u8*)"4:");
 		if(!door4_state)
-			HLCD_voidString("CLOSE");
+			HLCD_voidString((u8*)"CLOSE");
 		else
-			HLCD_voidString("OPEN ");
+			HLCD_voidString((u8*)"OPEN ");
 }
 
 
@@ -92,10 +93,10 @@ void Door1Interrupt(){
 	any_door_state = door1_state || door2_state || door3_state || door4_state;
 
 	if((!motor_state) & any_door_state){
-		MGPIO_VoidSetPinValue(GPIO_B, BUZZ, HIGH);
+		HBUZZER_voidBuzzerState(GPIO_B, BUZZ, HIGH);
 	}
 	else{
-		MGPIO_VoidSetPinValue(GPIO_B, BUZZ, LOW);
+		HBUZZER_voidBuzzerState(GPIO_B, BUZZ, LOW);
 	}
 }
 
@@ -105,11 +106,11 @@ void Door2Interrupt(){
 	any_door_state = door1_state || door2_state || door3_state || door4_state;
 
 	if((!motor_state) & any_door_state){
-		MGPIO_VoidSetPinValue(GPIO_B, BUZZ, HIGH);
+		HBUZZER_voidBuzzerState(GPIO_B, BUZZ, HIGH);
 	}
 
 	else{
-		MGPIO_VoidSetPinValue(GPIO_B, BUZZ, LOW);
+		HBUZZER_voidBuzzerState(GPIO_B, BUZZ, LOW);
 	}
 }
 
@@ -120,11 +121,11 @@ void Door3Interrupt(){
 	any_door_state = door1_state || door2_state || door3_state || door4_state;
 
 	if((!motor_state) & any_door_state){
-		MGPIO_VoidSetPinValue(GPIO_B, BUZZ, HIGH);
+		HBUZZER_voidBuzzerState(GPIO_B, BUZZ, HIGH);
 	}
 
 	else{
-		MGPIO_VoidSetPinValue(GPIO_B, BUZZ, LOW);
+		HBUZZER_voidBuzzerState(GPIO_B, BUZZ, LOW);
 	}
 }
 
@@ -134,11 +135,11 @@ void Door4Interrupt(){
 	any_door_state = door1_state || door2_state || door3_state || door4_state;
 
 	if((!motor_state) & any_door_state){
-		MGPIO_VoidSetPinValue(GPIO_B, BUZZ, HIGH);
+		HBUZZER_voidBuzzerState(GPIO_B, BUZZ, HIGH);
 	}
 
 	else{
-		MGPIO_VoidSetPinValue(GPIO_B, BUZZ, LOW);
+		HBUZZER_voidBuzzerState(GPIO_B, BUZZ, LOW);
 	}
 }
 
@@ -146,11 +147,11 @@ void motorInterrupt(){
 	motor_state = MUSART_u8Receive();
 
 	if((!motor_state) & any_door_state){
-		MGPIO_VoidSetPinValue(GPIO_B, BUZZ, HIGH);
+		HBUZZER_voidBuzzerState(GPIO_B, BUZZ, HIGH);
 	}
 
 	else{
-		MGPIO_VoidSetPinValue(GPIO_B, BUZZ, LOW);
+		HBUZZER_voidBuzzerState(GPIO_B, BUZZ, LOW);
 	}
 }
 
@@ -189,8 +190,7 @@ void main()
 	HSWITCH_VoidInit(GPIO_B,DOOR4,PULL_UP);
 
 	/* Buzzer */
-	MGPIO_VoidSetPinMode(GPIO_B,BUZZ,OUTPUT);
-	MGPIO_VoidSetPinOutputType(GPIO_B,BUZZ,OUTPUT_PP);
+	HBUZZER_voidInit(GPIO_B, BUZZ);
 
 	/*NVIC Enable*/
 	MNVIC_voidEnableInterrupt(EXTI5_9);
@@ -247,10 +247,4 @@ void main()
 	}
 
 }
-
-
-
-
-
-
 

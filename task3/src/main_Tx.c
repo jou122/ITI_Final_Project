@@ -31,10 +31,12 @@
 
 #include "COTS/03-HAL/01-LED/LED_interface.h"
 #include "COTS/03-HAL/02-SWITCH/SWITCH_interface.h"
+#include "COTS/03-HAL/04-Motor/MOTOR_interface.h"
 
 #define CLKWISE		4
 #define ANTICLKWISE 5
 #define SWITCH 	0
+
 #define IN1 	1
 #define IN2 	2
 #define EN 		3
@@ -43,33 +45,23 @@
 #define IN3 	12
 #define EN2 	11
 
-
 #define TX		9
 #define RX		10
 
 
-
-
 void MoveClk(){
-	/*set motor direction */
-	MGPIO_VoidSetPinValue(GPIO_A,IN3,HIGH);
-	MGPIO_VoidSetPinValue(GPIO_A,IN4,LOW);
-	MGPIO_VoidSetPinValue(GPIO_A,EN2,HIGH);
-
+	/*set motor direction clockwise */
+	HMOTOR_voidRotation(EN2, IN3 ,IN4, CW);
 }
-void MoveAntiClk(){
-	/*set motor direction */
-	MGPIO_VoidSetPinValue(GPIO_A,IN3,LOW);
-	MGPIO_VoidSetPinValue(GPIO_A,IN4,HIGH);
-	MGPIO_VoidSetPinValue(GPIO_A,EN2,HIGH);
 
+void MoveAntiClk(){
+	/*set motor direction anti-clockwise */
+	HMOTOR_voidRotation(EN2, IN3 ,IN4, CCW);
 }
 
 void StopMotor(){
-	MGPIO_VoidSetPinValue(GPIO_A,EN2,LOW);
+	HMOTOR_voidRotation(EN2, IN3 ,IN4, stop);
 }
-
-
 
 
 void main1()
@@ -88,44 +80,22 @@ void main1()
 	HSWITCH_VoidInit(GPIO_A,SWITCH,PULL_UP);
 
 	/* Clkwise button */
-	HSWITCH_VoidInit(GPIO_A,SWITCH,PULL_UP);
+	HSWITCH_VoidInit(GPIO_A,CLKWISE,PULL_UP);
 	/* AntiClkwise button */
-	HSWITCH_VoidInit(GPIO_A,SWITCH,PULL_UP);
+	HSWITCH_VoidInit(GPIO_A,ANTICLKWISE,PULL_UP);
 
 	/* DC Motor for engine*/
-	MGPIO_VoidSetPinMode(GPIO_A,EN,OUTPUT);
-	MGPIO_VoidSetPinOutputType(GPIO_A,EN,OUTPUT_PP);
-
-	MGPIO_VoidSetPinMode(GPIO_A,IN1,OUTPUT);
-	MGPIO_VoidSetPinOutputType(GPIO_A,IN1,OUTPUT_PP);
-
-	MGPIO_VoidSetPinMode(GPIO_A,IN2,OUTPUT);
-	MGPIO_VoidSetPinOutputType(GPIO_A,IN2,OUTPUT_PP);
-
-	/*set motor direction */
-	MGPIO_VoidSetPinValue(GPIO_A,IN1,HIGH);
-	MGPIO_VoidSetPinValue(GPIO_A,IN2,LOW);
-
+	HMOTOR_voidInit(EN,IN1,IN2);
 
 	/* DC Motor for window*/
-	MGPIO_VoidSetPinMode(GPIO_A,EN2,OUTPUT);
-	MGPIO_VoidSetPinOutputType(GPIO_A,EN2,OUTPUT_PP);
-
-	MGPIO_VoidSetPinMode(GPIO_A,IN3,OUTPUT);
-	MGPIO_VoidSetPinOutputType(GPIO_A,IN3,OUTPUT_PP);
-
-	MGPIO_VoidSetPinMode(GPIO_A,IN4,OUTPUT);
-	MGPIO_VoidSetPinOutputType(GPIO_A,IN4,OUTPUT_PP);
-
+	HMOTOR_voidInit(EN2,IN3,IN4);
 
 	/* Initialize USART */
-
 	MGPIO_VoidSetPinMode(GPIO_A, TX, AF);
 	MGPIO_VoidSetPinMode(GPIO_A, RX, AF);
 
 	MGPIO_VoidSetPinAlternativeFunction(GPIO_A, TX, AF7);
 	MGPIO_VoidSetPinAlternativeFunction(GPIO_A, RX, AF7);
-
 
 	MUSART_voidInit();
 
@@ -148,13 +118,13 @@ void main1()
 				{
 					if(current_state == 1)
 					{
-						MGPIO_VoidSetPinValue(GPIO_A,EN,LOW);
+						HMOTOR_voidRotation(EN ,IN1 ,IN2 ,stop);
 						MUSART_voidSendData(current_state);
 					}
 
 					else
 					{
-						MGPIO_VoidSetPinValue(GPIO_A,EN,HIGH);
+						HMOTOR_voidRotation(EN ,IN1 ,IN2 ,CW);
 						MUSART_voidSendData(current_state);
 					}
 					prev_state = current_state;
@@ -169,7 +139,6 @@ void main1()
 		else{
 			StopMotor();
 		}
-
 
 			}
 }
